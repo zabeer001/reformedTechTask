@@ -1,24 +1,51 @@
+# Logs
 *.log
+
+# OS junk
 .DS_Store
+Thumbs.db
+
+# Environment files
 .env
+.env.*
+!.env.example
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
+
+# Auth / private configs
+/auth.json
+
+# IDE / editor folders
 /.fleet
 /.idea
 /.nova
 /.phpunit.cache
 /.vscode
 /.zed
-/auth.json
+
+# PHP tools cache
+.phpactor.json
+.phpunit.result.cache
+
+# Dependencies
+/vendor
 /node_modules
+
+# Laravel build / hot reload
 /public/build
 /public/hot
-/public/storage
+
+# Public storage symlink (generated)
+public/storage
+
+# Storage private keys / runtime
 /storage/*.key
 /storage/pail
-/vendor
+
+# L5-Swagger generated docs (build artifacts)
+storage/api-docs
+public/api-docs
+
+# Homestead (if used)
 Homestead.json
 Homestead.yaml
-Thumbs.db
