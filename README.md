@@ -46,6 +46,32 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
+## Testing
+
+Run the feature and unit test suite with:
+
+```bash
+php artisan test
+```
+
+If you only want to exercise the authentication flow tests you can target them directly:
+
+```bash
+php artisan test --filter=AuthApiTest
+```
+
+The default test configuration uses an in-memory SQLite database, so ensure the `pdo_sqlite` extension is enabled in your PHP installation before running the suite.
+
+## API Documentation
+
+L5 Swagger is installed to document the authentication flow. Generate or refresh the OpenAPI file with:
+
+```bash
+php artisan l5-swagger:generate
+```
+
+Then open `http://localhost:8000/api/documentation` (adjust the host/port to your environment) to explore the endpoints, authorize with a bearer token, and execute requests directly in the UI.
+
 ## Code of Conduct
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
