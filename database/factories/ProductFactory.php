@@ -23,6 +23,7 @@ class ProductFactory extends Factory
             'name' => $name,
             'barcode' => $this->faker->unique()->ean13(),
             'slug' => Str::slug($name . '-' . $this->faker->unique()->numerify('####')),
+            'category' => $this->faker->randomElement(['electronics', 'apparel', 'groceries', 'home', 'other']),
         ];
     }
 }

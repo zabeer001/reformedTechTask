@@ -1,6 +1,6 @@
 services:
     laravel.test:
-        container_name: 'reformedTechTask-laravel'
+        container_name: 'inilabs-laravel'
         build:
             context: './vendor/laravel/sail/runtimes/8.4'
             dockerfile: Dockerfile
@@ -25,7 +25,7 @@ services:
         depends_on:
             - mysql
     mysql:
-        container_name: 'reformedTechTask-mysql'
+        container_name: 'inilabs-mysql'
         image: 'mysql:8.4'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
@@ -51,7 +51,7 @@ services:
             retries: 3
             timeout: 5s
     phpmyadmin:
-        container_name: 'reformedTechTask-phpmyadmin'
+        container_name: 'inilabs-phpmyadmin'
         image: 'phpmyadmin/phpmyadmin'
         depends_on:
             - mysql

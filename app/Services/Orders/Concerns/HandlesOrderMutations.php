@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Orders;
+namespace App\Services\Orders\Concerns;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
@@ -9,77 +9,11 @@ use App\Models\Stock;
 use App\Models\StockLog;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class OrderService
+trait HandlesOrderMutations
 {
-    public function create(array $data): Order
-    {
-        return DB::transaction(function () use ($data) {
-            $items = $this->resolveItems($data['items']);
-            $status = $this->resolveStatus($data['status'] ?? null);
-            $orderedAt = $data['ordered_at'] ?? now();
-
-            $order = Order::create([
-                'invoice_number' => $this->generateInvoiceNumber(),
-                'ordered_at' => $orderedAt,
-                'total_amount' => $this->calculateTotal($items),
-                'customer_name' => $data['customer_name'],
-                'status' => $status,
-            ]);
-
-            $this->syncOrderProducts($order, $items, 'order-create');
-
-            return $order->fresh(['products.product', 'products.stock']);
-        });
-    }
-
-    public function update(Order $order, array $data): Order
-    {
-        return DB::transaction(function () use ($order, $data) {
-            $items = $this->resolveItems($data['items']);
-            $status = $this->resolveStatus($data['status'] ?? $order->status?->value);
-            $orderedAt = $data['ordered_at'] ?? $order->ordered_at;
-
-            $this->restoreOrderStock($order, 'order-update');
-
-            $order->update([
-                'ordered_at' => $orderedAt,
-                'total_amount' => $this->calculateTotal($items),
-                'customer_name' => $data['customer_name'],
-                'status' => $status,
-            ]);
-
-            $order->products()->delete();
-
-            $this->syncOrderProducts($order, $items, 'order-update');
-
-            return $order->fresh(['products.product', 'products.stock']);
-        });
-    }
-
-    public function delete(Order $order): void
-    {
-        DB::transaction(function () use ($order) {
-            $this->restoreOrderStock($order, 'order-delete');
-            $order->products()->delete();
-            $order->delete();
-        });
-    }
-
-    public function place(Order $order, ?string $status = null): Order
-    {
-        $resolvedStatus = $this->resolveStatus($status ?? OrderStatus::Processing->value);
-
-        $order->update([
-            'status' => $resolvedStatus,
-        ]);
-
-        return $order->fresh(['products.product', 'products.stock']);
-    }
-
     /**
      * @param  array<int, array<string, mixed>>  $items
      */
@@ -128,7 +62,7 @@ class OrderService
     protected function syncOrderProducts(Order $order, Collection $items, string $logType): void
     {
         $items->each(function (array $item) use ($order, $logType) {
-            /** @var \App\Models\Stock $stock */
+            /** @var Stock $stock */
             $stock = $item['stock'];
             $this->decrementStock($stock, $item['quantity'], $logType);
 
@@ -145,6 +79,7 @@ class OrderService
 
     protected function restoreOrderStock(Order $order, string $logType): void
     {
+        dd($order);
         $order->loadMissing(['products.stock']);
 
         /** @var EloquentCollection<int, OrderProduct> $items */

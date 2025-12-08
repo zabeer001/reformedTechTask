@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ApiResponse;
 use App\Services\Auth\RefreshTokenService;
 use App\Services\Auth\RegisterService;
 use App\Services\Auth\SignInService;
 use App\Services\Auth\SignOutService;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
+use Throwable;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
+
     public function __construct()
     {
         $this->middleware('auth:api')->only(['refresh', 'signout']);
@@ -52,12 +56,21 @@ class AuthController extends Controller
      */
     public function signin(Request $request, SignInService $signInService)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        
+        try {
+            $credentials = $request->validate([
+                'email' => ['required', 'email'],
+                'password' => ['required', 'string'],
+            ]);
 
-        return response()->json($signInService($credentials));
+            $payload = $signInService($credentials);
+
+            return $this->successResponse($payload, 'Signed in successfully.');
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->errorResponse('Failed to sign in.', 401);
+        }
     }
 
 
@@ -83,7 +96,15 @@ class AuthController extends Controller
      */
     public function refresh(RefreshTokenService $refreshTokenService)
     {
-        return response()->json($refreshTokenService());
+        try {
+            $payload = $refreshTokenService();
+
+            return $this->successResponse($payload, 'Token refreshed successfully.');
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->errorResponse('Failed to refresh token.', 401);
+        }
     }
 
     //signout
@@ -105,6 +126,14 @@ class AuthController extends Controller
      */
     public function signout(SignOutService $signOutService)
     {
-        return response()->json(['message' => $signOutService()]);
+        try {
+            $message = $signOutService();
+
+            return $this->successResponse(null, $message);
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->errorResponse('Failed to sign out.', 500);
+        }
     }
 }

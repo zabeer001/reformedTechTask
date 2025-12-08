@@ -16,6 +16,7 @@ class Product extends Model
         'name',
         'barcode',
         'slug',
+        'category',
     ];
 
     protected static function booted(): void
