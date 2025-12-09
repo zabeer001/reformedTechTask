@@ -19,6 +19,7 @@ class Stock extends Model
         'purchase_price',
         'quantity',
         'last_update_at',
+        'image_path',
     ];
 
     protected $casts = [

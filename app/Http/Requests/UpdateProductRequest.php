@@ -32,6 +32,17 @@ class UpdateProductRequest extends FormRequest
                 Rule::unique('products', 'slug')->ignore($this->product),
             ],
             'category' => ['nullable', 'string', 'max:255'],
+            'image' => ['nullable', 'image', 'max:5120'],
+
+            // stocks sync: allow updating/creating stocks alongside product
+            'stocks' => ['nullable', 'array'],
+            'stocks.*.id' => ['nullable', 'integer', 'exists:stocks,id'],
+            'stocks.*.sku' => ['nullable', 'string', 'max:255'],
+            'stocks.*.sale_price' => ['nullable', 'numeric'],
+            'stocks.*.purchase_price' => ['nullable', 'numeric'],
+            'stocks.*.quantity' => ['nullable', 'integer'],
+            'stocks.*.image' => ['nullable', 'image', 'max:5120'],
+            'stocks.*.image_path' => ['nullable', 'string'],
         ];
     }
 }

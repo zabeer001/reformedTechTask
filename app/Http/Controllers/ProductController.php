@@ -13,6 +13,9 @@ use App\Services\Products\ProductStoreService;
 use App\Services\Products\ProductDeleteService;
 use App\Services\Products\ProductShowService;
 use App\Services\Products\ProductUpdateService;
+use Illuminate\Support\Facades\Storage;
+use App\Services\Images\ImageService;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
 use Throwable;
@@ -43,12 +46,24 @@ class ProductController extends Controller
      *     @OA\Response(response=200, description="Products retrieved successfully.")
      * )
      */
-    public function index(ProductIndexRequest $request, ProductIndexService $productIndexService): JsonResponse
+    public function index(ProductIndexRequest $request, ProductIndexService $productIndexService)
     {
+        // return $request->query;
+        // dd(gettype($request->query)); // returns obj 
         try {
             $stocks = $productIndexService->productIndex($request->validated());
 
             $products = $stocks->pluck('product')->unique('id')->values();
+            $productIds = $products->pluck('id');
+
+            $products = Product::query()
+                ->with('stocks')
+                ->whereIn('id', $productIds)
+                ->get()
+                ->sortBy(function (Product $product) use ($productIds) {
+                    return $productIds->search($product->id) ?? PHP_INT_MAX;
+                })
+                ->values();
 
             return $this->successResponse(
                 ProductResource::collection($products),
@@ -74,27 +89,17 @@ class ProductController extends Controller
      *             @OA\Property(property="name", type="string", maxLength=255),
      *             @OA\Property(property="barcode", type="string", maxLength=255),
      *             @OA\Property(property="slug", type="string", maxLength=255),
-     *             @OA\Property(property="category", type="string", maxLength=255)
+     *             @OA\Property(property="category", type="string", maxLength=255),
+     *             @OA\Property(property="image", type="string", format="binary")
      *         )
      *     ),
      *     @OA\Response(response=201, description="Product created successfully.")
      * )
      */
-    public function store(StoreProductRequest $request, ProductStoreService $productStoreService): JsonResponse
+
+    public function store(StoreProductRequest $request, ImageService $imageService, ProductStoreService $productStoreService)
     {
-        try {
-            $product = $productStoreService->create($request->validated());
-
-            return $this->successResponse(
-                new ProductResource($product),
-                'Product created successfully.',
-                201
-            );
-        } catch (Throwable $e) {
-            report($e);
-
-            return $this->errorResponse('Failed to create product.');
-        }
+        return  $productStoreService->productStore($request, $imageService);
     }
 
     /**
@@ -136,29 +141,16 @@ class ProductController extends Controller
      *             @OA\Property(property="name", type="string", maxLength=255),
      *             @OA\Property(property="barcode", type="string", maxLength=255),
      *             @OA\Property(property="slug", type="string", maxLength=255),
-     *             @OA\Property(property="category", type="string", maxLength=255)
+     *             @OA\Property(property="category", type="string", maxLength=255),
+     *             @OA\Property(property="image", type="string", format="binary")
      *         )
      *     ),
      *     @OA\Response(response=200, description="Product updated successfully.")
      * )
      */
-    public function update(
-        UpdateProductRequest $request,
-        Product $product,
-        ProductUpdateService $productUpdateService
-    ): JsonResponse {
-        try {
-            $product = $productUpdateService->update($product, $request->validated());
-
-            return $this->successResponse(
-                new ProductResource($product),
-                'Product updated successfully.'
-            );
-        } catch (Throwable $e) {
-            report($e);
-
-            return $this->errorResponse('Failed to update product.');
-        }
+    public function update(UpdateProductRequest $request, Product $product, ImageService $imageService, ProductUpdateService $productUpdateService)
+    {
+        return  $productUpdateService->productUpdate($request, $product, $imageService);
     }
 
     /**

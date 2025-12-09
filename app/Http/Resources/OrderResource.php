@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class OrderResource extends JsonResource
 {
@@ -36,11 +37,13 @@ class OrderResource extends JsonResource
                             'name' => $item->product->name,
                             'barcode' => $item->product->barcode,
                             'slug' => $item->product->slug,
+                            'image_url' => $item->product->image_path ?: null,
                         ] : null,
                         'stock' => $item->relationLoaded('stock') ? [
                             'id' => $item->stock->id,
                             'sku' => $item->stock->sku,
                             'quantity' => $item->stock->quantity,
+                            'image_url' => $item->stock->image_path ?: null,
                         ] : null,
                     ];
                 });

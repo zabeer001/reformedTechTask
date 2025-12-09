@@ -17,6 +17,7 @@ class Product extends Model
         'barcode',
         'slug',
         'category',
+        'image_path',
     ];
 
     protected static function booted(): void

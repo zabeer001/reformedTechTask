@@ -7,6 +7,7 @@ use App\Http\Requests\StockAdjustRequest;
 use App\Http\Resources\ProductResource;
 use App\Services\Stocks\StockAdjustmentService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 use Throwable;
 
@@ -31,24 +32,34 @@ class StockController extends Controller
      *         @OA\JsonContent(
      *             required={"sku","quantity"},
      *             @OA\Property(property="sku", type="string"),
-     *             @OA\Property(property="quantity", type="integer", minimum=1)
+     *             @OA\Property(property="quantity", type="integer", minimum=0),
+     *             @OA\Property(property="product_id", type="integer"),
+     *             @OA\Property(property="sale_price", type="number", format="float"),
+     *             @OA\Property(property="purchase_price", type="number", format="float"),
+     *             @OA\Property(property="image", type="string", format="binary")
      *         )
      *     ),
      *     @OA\Response(response=200, description="Stock increased successfully.")
      * )
      */
-    public function increase(StockAdjustRequest $request, StockAdjustmentService $stockAdjustmentService): JsonResponse
+    public function increase(StockAdjustRequest $request, StockAdjustmentService $stockAdjustmentService)
     {
+        // return 0;
         try {
             $stock = $stockAdjustmentService->increaseBySku(
                 $request->input('sku'),
-                (int) $request->input('quantity')
+                (int) $request->input('quantity'),
+                $request->file('image'),
+                $request->input('product_id'),
+                $request->input('sale_price') !== null ? (float) $request->input('sale_price') : null,
+                $request->input('purchase_price') !== null ? (float) $request->input('purchase_price') : null,
             );
 
             return $this->successResponse([
                 'stock_id' => $stock->id,
                 'sku' => $stock->sku,
                 'quantity' => $stock->quantity,
+                'image_url' => $stock->image_path ?: null,
                 'product' => new ProductResource($stock->product),
             ], 'Stock increased successfully.');
         } catch (Throwable $e) {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
@@ -18,3 +19,7 @@ Route::apiResource('orders', OrderController::class)->except(['create', 'edit'])
 Route::post('orders/{order}/place', [OrderController::class, 'place'])->name('orders.place');
 Route::post('orders/{order}/fake-payment', [OrderController::class, 'fakePayment'])->name('orders.fake-payment');
 Route::post('stocks/increase', [StockController::class, 'increase'])->name('stocks.increase');
+
+Route::middleware(['auth:api', 'role:admin'])->group(function (): void {
+    Route::get('admin/products', AdminProductController::class)->name('admin.products.index');
+});

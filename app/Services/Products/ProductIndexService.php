@@ -13,7 +13,9 @@ class ProductIndexService
      */
     public function productIndex(array $filters = []): Collection
     {
+        // dd()
         $queryString = isset($filters['query']) ? trim((string) $filters['query']) : '';
+        // dd($queryString);
         $limit = max(1, min((int) ($filters['limit'] ?? 10), 50));
 
         // Normalize filters so same meaning => same key
@@ -46,15 +48,7 @@ class ProductIndexService
                     });
                 });
 
-            if (!empty($filters['name'])) {
-                $name = trim((string) $filters['name']);
-                $query->whereHas('product', fn ($pq) => $pq->where('name', 'like', "%{$name}%"));
-            }
-
-            if (!empty($filters['barcode'])) {
-                $barcode = trim((string) $filters['barcode']);
-                $query->whereHas('product', fn ($pq) => $pq->where('barcode', 'like', "%{$barcode}%"));
-            }
+          
 
             if (!empty($filters['sku'])) {
                 $sku = trim((string) $filters['sku']);
