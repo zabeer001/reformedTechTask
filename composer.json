@@ -7,6 +7,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "blade-ui-kit/blade-heroicons": "^2.6",
+        "blade-ui-kit/blade-icons": "^1.8",
         "cloudinary-labs/cloudinary-laravel": "^3.0",
         "cloudinary/cloudinary_php": "^3.1",
         "darkaonline/l5-swagger": "^9.0",
@@ -20,7 +22,7 @@
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
-        "laravel/sail": "^1.50",
+        "laravel/sail": "^1.51",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "phpunit/phpunit": "^11.5.3"

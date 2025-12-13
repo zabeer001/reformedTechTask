@@ -20,12 +20,15 @@ class UserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'binzabirtareq@gmail.com'],
+            ['email' => 'colin@gmail.com'],
             [
                 'name' => 'Binzabir Tareq',
                 'password' => Hash::make('password'),
-                'role' => 'customer_care',
+                'role' => 'admin',
             ]
         );
+        User::factory()
+            ->count(30)
+            ->create();
     }
 }

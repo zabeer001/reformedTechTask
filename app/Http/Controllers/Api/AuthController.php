@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Concerns\ApiResponse;
+use App\Http\Controllers\Api\Concerns\ApiResponse;
+use App\Http\Controllers\Controller;
 use App\Services\Auth\RefreshTokenService;
-use App\Services\Auth\RegisterService;
 use App\Services\Auth\SignInService;
 use App\Services\Auth\SignOutService;
 use Illuminate\Http\Request;
-use OpenApi\Annotations as OA;
 use Throwable;
 
 class AuthController extends Controller
@@ -56,6 +55,7 @@ class AuthController extends Controller
      */
     public function signin(Request $request, SignInService $signInService)
     {
+        
         
         try {
             $credentials = $request->validate([
@@ -136,4 +136,8 @@ class AuthController extends Controller
             return $this->errorResponse('Failed to sign out.', 500);
         }
     }
+
+    //frontend
+
+    
 }
